@@ -145,43 +145,43 @@ chmod +x /opt/de_GWD/tcpTime
 
 repoDL(){
 echo -e "${WHITE}[...]\c" && echo -e "\t${WHITE}Repo Download${cRES}\r\c"
-sha256sum_nginx=$(curl -sSLo- https://raw.githubusercontent.com/jacyl4/de_GWD/$branch/resource/nginx/nginx_"$architecture".sha256sum)
-sha256sum_nginxConf=$(curl -sSLo- https://raw.githubusercontent.com/jacyl4/de_GWD/$branch/resource/nginx/nginxConf.zip.sha256sum)
-sha256sum_client=$(curl -sSLo- https://raw.githubusercontent.com/jacyl4/de_GWD/$branch/resource/client/Archive.zip.sha256sum)
+sha256sum_nginx=$(curl -sSLo- https://ghproxy.net/https://raw.githubusercontent.com/jacyl4/de_GWD/$branch/resource/nginx/nginx_"$architecture".sha256sum)
+sha256sum_nginxConf=$(curl -sSLo- https://ghproxy.net/https://raw.githubusercontent.com/jacyl4/de_GWD/$branch/resource/nginx/nginxConf.zip.sha256sum)
+sha256sum_client=$(curl -sSLo- https://ghproxy.net/https://raw.githubusercontent.com/jacyl4/de_GWD/$branch/resource/client/Archive.zip.sha256sum)
 
 if [[ $(checkSum /usr/sbin/nginx $sha256sum_nginx) = "false" ]]; then
 rm -rf /tmp/nginx
-wget --show-progress -cqO /tmp/nginx https://raw.githubusercontent.com/jacyl4/de_GWD/$branch/resource/nginx/nginx_"$architecture"
+wget --show-progress -cqO /tmp/nginx https://ghproxy.net/https://raw.githubusercontent.com/jacyl4/de_GWD/$branch/resource/nginx/nginx_"$architecture"
 [[ $(checkSum /tmp/nginx $sha256sum_nginx) = "false" ]] && echo -e "${WHITE}NGINX Core${RED} Download Failed${cRES}" && exit
 [[ $(checkSum /tmp/nginx $sha256sum_nginx) = "true" ]] && mv -f /tmp/nginx /usr/sbin/nginx && chmod +x /usr/sbin/nginx
 fi
 
 if [[ $(checkSum /opt/de_GWD/.repo/nginxConf.zip $sha256sum_nginxConf) = "false" ]]; then
 rm -rf /tmp/nginxConf.zip
-wget --show-progress -cqO /tmp/nginxConf.zip https://raw.githubusercontent.com/jacyl4/de_GWD/$branch/resource/nginx/nginxConf.zip
+wget --show-progress -cqO /tmp/nginxConf.zip https://ghproxy.net/https://raw.githubusercontent.com/jacyl4/de_GWD/$branch/resource/nginx/nginxConf.zip
 [[ $(checkSum /tmp/nginxConf.zip $sha256sum_nginxConf) = "false" ]] && echo -e "${RED}Download Failed${cRES}" && exit
 [[ $(checkSum /tmp/nginxConf.zip $sha256sum_nginxConf) = "true" ]] && mv -f /tmp/nginxConf.zip /opt/de_GWD/.repo/nginxConf.zip
 fi
 
 if [[ $(ttyd -v 2>&1 | grep -o '[0-9]\.[0-9]\.[0-9]') != $TTYD_Ver ]]; then
-wget --show-progress -cqO /tmp/ttyd https://github.com/tsl0922/ttyd/releases/download/$TTYD_Ver/ttyd.$(uname -m)
+wget --show-progress -cqO /tmp/ttyd https://ghproxy.net/https://github.com/tsl0922/ttyd/releases/download/$TTYD_Ver/ttyd.$(uname -m)
 [[ $? -ne 0 ]] && echo -e "${WHITE}TTYD${RED} Download Failed${cRES}"
 [[ $(du -sk /tmp/ttyd 2>/dev/null | awk '{print$1}') -gt 1000 ]] && mv -f /tmp/ttyd /usr/bin/ttyd && chmod +x /usr/bin/ttyd && TTYD_UPDATE="true"
 fi
 
 if [[ $(checkSum /opt/de_GWD/.repo/client.zip $sha256sum_client) = "false" ]]; then
 rm -rf /tmp/client.zip
-wget --show-progress -cqO /tmp/client.zip https://raw.githubusercontent.com/jacyl4/de_GWD/$branch/resource/client/Archive.zip
+wget --show-progress -cqO /tmp/client.zip https://ghproxy.net/https://raw.githubusercontent.com/jacyl4/de_GWD/$branch/resource/client/Archive.zip
 [[ $(checkSum /tmp/client.zip $sha256sum_client) = "false" ]] && echo -e "${WHITE}Client Zip${RED} Download Failed${cRES}" && exit
 [[ $(checkSum /tmp/client.zip $sha256sum_client) = "true" ]] && mv -f /tmp/client.zip /opt/de_GWD/.repo/client.zip
 fi
 
 localVer=$(awk 'NR==1' /opt/de_GWD/.repo/version.php 2>/dev/null)
-remoteVer=$(curl -sSLo- https://raw.githubusercontent.com/jacyl4/de_GWD/main/version.php | head -n 1)
+remoteVer=$(curl -sSLo- https://ghproxy.net/https://raw.githubusercontent.com/jacyl4/de_GWD/main/version.php | head -n 1)
 
 if [[ $localVer != $remoteVer ]] || [[ ! -f '/opt/de_GWD/.repo/version.php' ]]; then
 rm -rf /opt/de_GWD/.repo/version.php
-wget --show-progress -cqO /opt/de_GWD/.repo/version.php https://raw.githubusercontent.com/jacyl4/de_GWD/main/version.php
+wget --show-progress -cqO /opt/de_GWD/.repo/version.php https://ghproxy.net/https://raw.githubusercontent.com/jacyl4/de_GWD/main/version.php
 [[ $? -ne 0 ]] && echo -e "${WHITE}Version file${RED} Download Failed${cRES}" && exit
 fi
 
@@ -2172,9 +2172,9 @@ piholeCoreVer=$(pihole -v 2>/dev/null | awk -F'is ' '{print$2}' | awk 'NR==1{pri
 piholeWebUIVer=$(pihole -v 2>/dev/null | awk -F'is ' '{print$2}' | awk 'NR==2{print$1}')
 piholeFTLVer=$(pihole -v 2>/dev/null | awk -F'is ' '{print$2}' | awk 'NR==3{print$1}')
 
-piholeCoreRelease=$(curl -sSLI "https://github.com/pi-hole/pi-hole/releases/latest" | grep "location:" | awk -F'/' 'END{print$NF}' | tr -cd "[:print:]\n")
-piholeWebUIRelease=$(curl -sSLI "https://github.com/pi-hole/AdminLTE/releases/latest" | grep "location:" | awk -F'/' 'END{print$NF}' | tr -cd "[:print:]\n")
-piholeFTLRelease=$(curl -sSLI "https://github.com/pi-hole/FTL/releases/latest" | grep "location:" | awk -F'/' 'END{print$NF}' | tr -cd "[:print:]\n")
+piholeCoreRelease=$(curl -sSLI "https://ghproxy.net/https://github.com/pi-hole/pi-hole/releases/latest" | grep "location:" | awk -F'/' 'END{print$NF}' | tr -cd "[:print:]\n")
+piholeWebUIRelease=$(curl -sSLI "https://ghproxy.net/https://github.com/pi-hole/AdminLTE/releases/latest" | grep "location:" | awk -F'/' 'END{print$NF}' | tr -cd "[:print:]\n")
+piholeFTLRelease=$(curl -sSLI "https://ghproxy.net/https://github.com/pi-hole/FTL/releases/latest" | grep "location:" | awk -F'/' 'END{print$NF}' | tr -cd "[:print:]\n")
 
 [[ -z $piholePW ]] && piholePW="0000000000000000000000000000000000000000000000000000000000000000"
 
@@ -2189,12 +2189,12 @@ systemctl unmask dhcpcd >/dev/null 2>&1
 mkdir -p /etc/.pihole
 mkdir -p /etc/pihole
 cat << EOF >/etc/pihole/adlists.list
-https://raw.githubusercontent.com/kboghdady/youTube_ads_4_pi-hole/master/youtubelist.txt
+https://ghproxy.net/https://raw.githubusercontent.com/kboghdady/youTube_ads_4_pi-hole/master/youtubelist.txt
 EOF
 
 piholeConf
 
-git clone https://github.com/pi-hole/pi-hole /etc/.pihole
+git clone https://ghproxy.net/https://github.com/pi-hole/pi-hole /etc/.pihole
 cat "/etc/.pihole/automated install/basic-install.sh" | PIHOLE_SKIP_OS_CHECK=true bash /dev/stdin --unattended
 chmod -R 755 /var/www/html
 usermod -aG pihole www-data
@@ -2421,11 +2421,11 @@ fi
 
 
 install3rdKernel(){
-bash <(wget --show-progress -cqO- https://raw.githubusercontent.com/jacyl4/de_GWD/main/resource/kernel/install3rdKernel)
+bash <(wget --show-progress -cqO- https://ghproxy.net/https://raw.githubusercontent.com/jacyl4/de_GWD/main/resource/kernel/install3rdKernel)
 }
 
 restoreKernel(){
-bash <(wget --show-progress -cqO- https://raw.githubusercontent.com/jacyl4/de_GWD/main/resource/kernel/installDefaultKernel)
+bash <(wget --show-progress -cqO- https://ghproxy.net/https://raw.githubusercontent.com/jacyl4/de_GWD/main/resource/kernel/installDefaultKernel)
 }
 
 
